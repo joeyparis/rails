@@ -1,3 +1,7 @@
+*   Add `skip_nil:` support to `RedisCacheStore`
+
+    *Joey Paris*
+
 *   Faster tests by parallelizing only when overhead is justified by the number
     of them.
 
