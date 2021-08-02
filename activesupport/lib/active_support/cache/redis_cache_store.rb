@@ -141,7 +141,7 @@ module ActiveSupport
       # "thundering herd" cache writes when hot cache entries are expired.
       # See <tt>ActiveSupport::Cache::Store#fetch</tt> for more.
       #
-      # Setting <tt>skip_nil: true</tt> will not cache nil result:
+      # Setting <tt>skip_nil: true</tt> will not cache nil results:
       #
       #   cache.fetch('foo') { nil }
       #   cache.fetch('bar', skip_nil: true) { nil }
