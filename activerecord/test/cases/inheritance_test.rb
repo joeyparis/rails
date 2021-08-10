@@ -11,6 +11,7 @@ require "models/subscriber"
 require "models/vegetables"
 require "models/shop"
 require "models/sponsor"
+require "models/club"
 
 module InheritanceTestHelper
   def with_store_full_sti_class(&block)
@@ -373,17 +374,6 @@ class InheritanceTest < ActiveRecord::TestCase
       item = Company.new(type: "SpecialCo")
       assert_instance_of Company::SpecialCo, item
     end
-  end
-
-  def test_new_with_autoload_paths
-    path = File.expand_path("../models/autoloadable", __dir__)
-    ActiveSupport::Dependencies.autoload_paths << path
-
-    firm = Company.new(type: "ExtraFirm")
-    assert_equal ExtraFirm, firm.class
-  ensure
-    ActiveSupport::Dependencies.autoload_paths.reject! { |p| p == path }
-    ActiveSupport::Dependencies.clear
   end
 
   def test_inheritance_condition

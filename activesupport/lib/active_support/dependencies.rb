@@ -15,8 +15,10 @@ require "active_support/core_ext/name_error"
 require "active_support/dependencies/interlock"
 require "active_support/inflector"
 
-module ActiveSupport #:nodoc:
-  module Dependencies #:nodoc:
+module ActiveSupport # :nodoc:
+  module Dependencies # :nodoc:
+    require_relative "dependencies/require_dependency"
+
     extend self
 
     UNBOUND_METHOD_MODULE_NAME = Module.instance_method(:name)
@@ -176,7 +178,7 @@ module ActiveSupport #:nodoc:
     mattr_accessor :constant_watch_stack, default: WatchStack.new
 
     # Module includes this module.
-    module ModuleConstMissing #:nodoc:
+    module ModuleConstMissing # :nodoc:
       def self.append_features(base)
         base.class_eval do
           # Emulate #exclude via an ivar
@@ -223,7 +225,7 @@ module ActiveSupport #:nodoc:
     end
 
     # Object includes this module.
-    module Loadable #:nodoc:
+    module Loadable # :nodoc:
       def self.exclude_from(base)
         base.class_eval do
           define_method(:load, Kernel.instance_method(:load))
@@ -249,37 +251,6 @@ module ActiveSupport #:nodoc:
       def require_or_load(file_name)
         Dependencies.require_or_load(file_name)
       end
-
-      # :doc:
-
-      # <b>Warning:</b> This method is obsolete in +:zeitwerk+ mode. In
-      # +:zeitwerk+ mode semantics match Ruby's and you do not need to be
-      # defensive with load order. Just refer to classes and modules normally.
-      # If the constant name is dynamic, camelize if needed, and constantize.
-      #
-      # In +:classic+ mode, interprets a file using +mechanism+ and marks its
-      # defined constants as autoloaded. +file_name+ can be either a string or
-      # respond to <tt>to_path</tt>.
-      #
-      # In +:classic+ mode, use this method in code that absolutely needs a
-      # certain constant to be defined at that point. A typical use case is to
-      # make constant name resolution deterministic for constants with the same
-      # relative name in different namespaces whose evaluation would depend on
-      # load order otherwise.
-      #
-      # Engines that do not control the mode in which their parent application
-      # runs should call +require_dependency+ where needed in case the runtime
-      # mode is +:classic+.
-      def require_dependency(file_name, message = "No such file to load -- %s.rb")
-        file_name = file_name.to_path if file_name.respond_to?(:to_path)
-        unless file_name.is_a?(String)
-          raise ArgumentError, "the file name must either be a String or implement #to_path -- you passed #{file_name.inspect}"
-        end
-
-        Dependencies.depend_on(file_name, message)
-      end
-
-      # :nodoc:
 
       def load_dependency(file)
         if Dependencies.load? && Dependencies.constant_watch_stack.watching?
@@ -638,7 +609,7 @@ module ActiveSupport #:nodoc:
 
     # Convert the provided const desc to a qualified constant name (as a string).
     # A module, class, symbol, or string may be provided.
-    def to_constant_name(desc) #:nodoc:
+    def to_constant_name(desc) # :nodoc:
       case desc
       when String then desc.delete_prefix("::")
       when Symbol then desc.to_s
@@ -649,7 +620,7 @@ module ActiveSupport #:nodoc:
       end
     end
 
-    def remove_constant(const) #:nodoc:
+    def remove_constant(const) # :nodoc:
       # Normalize ::Foo, ::Object::Foo, Object::Foo, Object::Object::Foo, etc. as Foo.
       normalized = const.to_s.delete_prefix("::")
       normalized.sub!(/\A(Object::)+/, "")
