@@ -1,3 +1,31 @@
+*  Add Server-Timing middleware
+
+   Server-Timing specification defines how the server can communicate to browsers performance metrics
+   about the request it is responding to.
+
+   The ServerTiming middleware is enabled by default on `development` environment by default using the
+   `config.server_timing` setting and set the relevant duration metrics in the `Server-Timing` header
+
+   The full specification for Server-Timing header can be found in: https://www.w3.org/TR/server-timing/#dfn-server-timing-header-field
+
+   *Sebastian Sogamoso*, *Guillermo Iguaran*
+
+
+## Rails 7.0.0.alpha2 (September 15, 2021) ##
+
+*   No changes.
+
+
+## Rails 7.0.0.alpha1 (September 15, 2021) ##
+
+*   Use a static error message when raising `ActionDispatch::Http::Parameters::ParseError`
+    to avoid inadvertently logging the HTTP request body at the `fatal` level when it contains
+    malformed JSON.
+
+    Fixes #41145
+
+    *Aaron Lahey*
+
 *   Add `Middleware#delete!` to delete middleware or raise if not found.
 
     `Middleware#delete!` works just like `Middleware#delete` but will

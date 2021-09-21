@@ -1,3 +1,20 @@
+## Rails 7.0.0.alpha2 (September 15, 2021) ##
+
+*   No changes.
+
+
+## Rails 7.0.0.alpha1 (September 15, 2021) ##
+
+*   Emit Active Support instrumentation events from Active Storage analyzers.
+
+    Fixes #42930
+
+    *Shouichi Kamiya*
+
+*   Add support for byte range requests
+
+    *Tom Prats*
+
 *   Attachments can be deleted after their association is no longer defined.
 
     Fixes #42514
