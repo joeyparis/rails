@@ -124,6 +124,9 @@ module ActiveRecord
       #   column_exists?(:suppliers, :name)
       #
       #   # Check a column exists of a particular type
+      #   #
+      #   # This works for standard non-casted types (eg. string) but is unreliable
+      #   # for types that may get cast to something else (eg. char, bigint).
       #   column_exists?(:suppliers, :name, :string)
       #
       #   # Check a column exists with a specific definition
@@ -653,7 +656,8 @@ module ActiveRecord
       # The +type+ and +options+ parameters will be ignored if present. It can be helpful
       # to provide these in a migration's +change+ method so it can be reverted.
       # In that case, +type+ and +options+ will be used by #add_column.
-      # Indexes on the column are automatically removed.
+      # Depending on the database you're using, indexes using this column may be
+      # automatically removed or modified to remove this column from the index.
       #
       # If the options provided include an +if_exists+ key, it will be used to check if the
       # column does not exist. This will silently ignore the migration rather than raising
@@ -778,7 +782,7 @@ module ActiveRecord
       #
       #   CREATE INDEX by_name_surname ON accounts(name(10), surname(15))
       #
-      # Note: SQLite doesn't support index length.
+      # Note: only supported by MySQL
       #
       # ====== Creating an index with a sort order (desc or asc, asc is the default)
       #
@@ -1075,6 +1079,9 @@ module ActiveRecord
       #   duplicate column errors.
       # [<tt>:validate</tt>]
       #   (PostgreSQL only) Specify whether or not the constraint should be validated. Defaults to +true+.
+      # [<tt>:deferrable</tt>]
+      #   (PostgreSQL only) Specify whether or not the foreign key should be deferrable. Valid values are booleans or
+      #   +:deferred+ or +:immediate+ to specify the default behavior. Defaults to +false+.
       def add_foreign_key(from_table, to_table, **options)
         return unless supports_foreign_keys?
         return if options[:if_not_exists] == true && foreign_key_exists?(from_table, to_table)
@@ -1431,7 +1438,7 @@ module ActiveRecord
 
           checks = []
 
-          if !options.key?(:name) && column_name.is_a?(String) && /\W/.match?(column_name)
+          if !options.key?(:name) && expression_column_name?(column_name)
             options[:name] = index_name(table_name, column_name)
             column_names = []
           else
@@ -1440,7 +1447,7 @@ module ActiveRecord
 
           checks << lambda { |i| i.name == options[:name].to_s } if options.key?(:name)
 
-          if column_names.present?
+          if column_names.present? && !(options.key?(:name) && expression_column_name?(column_names))
             checks << lambda { |i| index_name(table_name, i.columns) == index_name(table_name, column_names) }
           end
 
@@ -1508,7 +1515,7 @@ module ActiveRecord
         end
 
         def index_column_names(column_names)
-          if column_names.is_a?(String) && /\W/.match?(column_names)
+          if expression_column_name?(column_names)
             column_names
           else
             Array(column_names)
@@ -1516,11 +1523,16 @@ module ActiveRecord
         end
 
         def index_name_options(column_names)
-          if column_names.is_a?(String) && /\W/.match?(column_names)
+          if expression_column_name?(column_names)
             column_names = column_names.scan(/\w+/).join("_")
           end
 
           { column: column_names }
+        end
+
+        # Try to identify whether the given column name is an expression
+        def expression_column_name?(column_name)
+          column_name.is_a?(String) && /\W/.match?(column_name)
         end
 
         def strip_table_name_prefix_and_suffix(table_name)

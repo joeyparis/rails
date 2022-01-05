@@ -16,7 +16,7 @@ After reading this guide, you will know:
 Ruby on Rails is not "someone else's framework". Over the years, thousands of people have contributed to Ruby on Rails ranging from a single character to massive architectural changes or significant documentation - all to make Ruby on Rails better for everyone. Even if you don't feel up to writing code or documentation yet, there are various other ways that you can contribute, from reporting issues to testing patches.
 
 As mentioned in [Rails'
-README](https://github.com/rails/rails/blob/main/README.md), everyone interacting in Rails and its sub-projects' codebases, issue trackers, chat rooms, and mailing lists is expected to follow the Rails [code of conduct](https://rubyonrails.org/conduct/).
+README](https://github.com/rails/rails/blob/main/README.md), everyone interacting in Rails and its sub-projects' codebases, issue trackers, chat rooms, and mailing lists is expected to follow the Rails [code of conduct](https://rubyonrails.org/conduct).
 
 --------------------------------------------------------------------------------
 
@@ -236,6 +236,15 @@ $ bundle exec rails new ~/my-test-app --dev
 The application generated in `~/my-test-app` runs against your local branch
 and, in particular, sees any modifications upon server reboot.
 
+For JavaScript packages, you can use [`yarn link`](https://yarnpkg.com/cli/link) to source your local branch in a generated application:
+
+```bash
+$ cd rails/activestorage
+$ yarn link
+$ cd ~/my-test-app
+$ yarn link "@rails/activestorage"
+```
+
 ### Write Your Code
 
 Now get busy and add/edit code. You're on your branch now, so you can write whatever you want (make sure you're on the right branch with `git branch -a`). But if you're planning to submit your change back for inclusion in Rails, keep a few things in mind:
@@ -268,7 +277,7 @@ The above are guidelines - please use your best judgment in using them.
 Additionally, we have [RuboCop](https://www.rubocop.org/) rules defined to codify some of our coding conventions. You can run RuboCop locally against the file that you have modified before submitting a pull request:
 
 ```bash
-$ rubocop actionpack/lib/action_controller/metal/strong_parameters.rb
+$ bundle exec rubocop actionpack/lib/action_controller/metal/strong_parameters.rb
 Inspecting 1 file
 .
 

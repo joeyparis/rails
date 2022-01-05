@@ -6,11 +6,15 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 gemspec
 
+gem "minitest", ">= 5.15.0"
+
 # We need a newish Rake since Active Job sets its test tasks' descriptions.
 gem "rake", ">= 11.1"
 
+gem "sprockets-rails", ">= 2.0.0"
+gem "propshaft", ">= 0.1.7"
 gem "capybara", ">= 3.26"
-gem "selenium-webdriver", ">= 4.0.0.alpha7"
+gem "selenium-webdriver", ">= 4.0.0"
 
 gem "rack-cache", "~> 1.2"
 gem "stimulus-rails"
@@ -31,6 +35,12 @@ gem "terser", ">= 1.1.4", require: false
 # Explicitly avoid 1.x that doesn't support Ruby 2.4+
 gem "json", ">= 2.0.0"
 
+# net-smtp, net-imap and net-pop were removed from default gems in Ruby 3.1, but is used by the `mail` gem.
+# So we need to add them as dependencies until `mail` is fixed: https://github.com/mikel/mail/pull/1439
+gem "net-smtp", require: false
+gem "net-imap", require: false
+gem "net-pop", require: false
+
 group :rubocop do
   gem "rubocop", ">= 0.90", require: false
   gem "rubocop-minitest", require: false
@@ -48,7 +58,7 @@ group :doc do
 end
 
 # Active Support
-gem "dalli"
+gem "dalli", ">= 3.0.1"
 gem "listen", "~> 3.3", require: false
 gem "libxml-ruby", platforms: :ruby
 gem "connection_pool", require: false
@@ -65,7 +75,7 @@ group :job do
   gem "sidekiq", require: false
   gem "sucker_punch", require: false
   gem "delayed_job", require: false
-  gem "queue_classic", github: "QueueClassic/queue_classic", require: false, platforms: :ruby
+  gem "queue_classic", github: "jhawthorn/queue_classic", branch: "fix-connection-pg-14", require: false, platforms: :ruby
   gem "sneakers", require: false
   gem "que", require: false
   gem "backburner", require: false
@@ -172,18 +182,3 @@ end
 
 gem "tzinfo-data", platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 gem "wdm", ">= 0.1.0", platforms: [:mingw, :mswin, :x64_mingw, :mswin64]
-
-if RUBY_VERSION >= "3.1"
-  # net-smtp, net-imap and net-pop were removed from default gems in Ruby 3.1, but is used by the `mail` gem.
-  # So we need to add them as dependencies until `mail` is fixed: https://github.com/mikel/mail/pull/1439
-  gem "net-smtp", require: false
-  gem "net-imap", require: false
-  gem "net-pop", require: false
-
-  # digest gem, which is one of the default gems has bumped to 3.0.1.pre for ruby 3.1.0dev.
-  gem "digest", "~> 3.0.1.pre", require: false
-
-  # matrix was removed from default gems in Ruby 3.1, but is used by the `capybara` gem.
-  # So we need to add it as a dependency until `capybara` is fixed: https://github.com/teamcapybara/capybara/pull/2468
-  gem "matrix", require: false
-end

@@ -689,9 +689,7 @@ end
 
 Should you wish to create a database constraint to prevent possible violations of a uniqueness validation using the `:scope` option, you must create a unique index on both columns in your database. See [the MySQL manual](https://dev.mysql.com/doc/refman/en/multiple-column-indexes.html) for more details about multiple column indexes or [the PostgreSQL manual](https://www.postgresql.org/docs/current/static/ddl-constraints.html) for examples of unique constraints that refer to a group of columns.
 
-There is also a `:case_sensitive` option that you can use to define whether the
-uniqueness constraint will be case sensitive or not. This option defaults to
-true.
+There is also a `:case_sensitive` option that you can use to define whether the uniqueness constraint will be case sensitive, case insensitive, or respects default database collation. This option defaults to respects default database collation.
 
 ```ruby
 class Person < ApplicationRecord
@@ -1096,7 +1094,7 @@ instance.
 ```ruby
 class EmailValidator < ActiveModel::EachValidator
   def validate_each(record, attribute, value)
-    unless value =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i
+    unless value =~ URI::MailTo::EMAIL_REGEXP
       record.errors.add attribute, (options[:message] || "is not an email")
     end
   end
